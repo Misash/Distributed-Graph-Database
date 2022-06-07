@@ -82,6 +82,7 @@ void READ(int sockfd){
 
     for(;;){
 
+
         bzero(buff_rx,1010); //clean buffer
         read(sockfd , buff_rx , 4); // read action and size
 
