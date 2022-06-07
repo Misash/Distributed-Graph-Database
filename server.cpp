@@ -54,11 +54,6 @@ void broadcast(string msg){
         cout << "Protocolo:" << buffer << endl;
     }
 }
-bool isDirectMsg(string msg){
-    std::size_t found = msg.find(',');
-    if (found!=std::string::npos) return 1;
-    return 0;
-}
 
 
 
@@ -97,7 +92,7 @@ void sendMsgByNick(int connfd , string nick , string msg){
 void sendUserList(int connfd){
     string buffer , action , ClientsSize , nick , nickSize;
 
-    action = "l";
+    action = "CE";
     ClientsSize = zeros(room.size());
 
     buffer = action + ClientsSize ;
@@ -117,51 +112,30 @@ void READ(int connfd)
     char buff_rx[1010];
     char nickname[1000];
     int n ;
-    string message;
+    string message, buffer , action , ClientsSize;
 
     for(;;)
     {
         bzero(buff_rx,1010); //clean buffer
         read(connfd , buff_rx , 5); // read action and size
 
-        //new guest node
-        if(buff_rx[0] == 'N' && buff_rx[1] =='N')
-        {
-            int size = atoi(&buff_rx[2]);
-            bzero(nickname,1000); //clean buffer
-            read(connfd,nickname,size);
-            room[connfd] = nickname;    //add client
-            message = "\n " + room[connfd] + " node created \n";
-            cout<<message;
-            broadcast(message);
+        
+        if(buff_rx[0] == 'C' && buff_rx[1] =='N'){
+            action = "CN";
+            ClientsSize = zeros(room.size());
+            buffer = action + ClientsSize ;
+            cout << "Protocolo:" << buffer << endl;
         }
-        //create storage node
-        else if(buff_rx[0] == 'C' && buff_rx[1] =='N')
-        {
-
+        /*if(buff_rx[0] == 'C' && buff_rx[1] =='N'){
             int size = atoi(&buff_rx[2]);
-            bzero(buff_rx,1010);
+            bzero(buff_rx,111); //clean buffer
             read(connfd,buff_rx,size);
-
-            int nodeSelected = 1;
-            room[nodeSelected] = buff_rx;
-            message = "\n " + room[nodeSelected] + " storage node created \n";
+            message = "\n[" + room[connfd] + " ] : " + buff_rx + "\n" ;
             broadcast(message);
             cout<<message;
-        }
-
-
-
-
-
-        /*else if(buff_rx[0] == 'Q'){
-            message = "\n" + room[connfd] + "left the chat\n";
-            cout<<message;
-            write(connfd,"Q000",4);
-            broadcast(message);
-            break;
         }*/
-        else if(buff_rx[0] == 'L'){
+
+        else if(buff_rx[0] == 'C' && buff_rx[1] == 'E'){
             sendUserList(connfd);
         }
 
@@ -280,3 +254,5 @@ int main() /* input arguments are not used */
 
     return 0;
 }
+
+
