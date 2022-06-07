@@ -8,7 +8,7 @@
 #include <iostream>
 #include <string>
 #include <bits/stdc++.h> //stl
-using namespace std;
+
 
 #include <netdb.h>
 #include <stdio.h>
@@ -24,11 +24,13 @@ using namespace std;
 /*Multi threading*/
 #include <thread>
 
+using namespace std;
+
 //#define SERVER_ADDRESS "127.0.0.1" /* server IP */
 //#define PORT 8000
 
 //#define PORT 45012            /* port */
-#define SERVER_ADDRESS "5.253.235.219" /* IP, only IPV4 support  */
+#define SERVER_ADDRESS "127.0.0.1" /* IP, only IPV4 support  */
 
 
 
@@ -176,6 +178,7 @@ void READ(int sockfd){
 vector<string> parser(string s){
     vector<string> tokens;
     std::string delimiter = " ";
+    s+=delimiter;
     size_t pos = 0;
     std::string token;
     while ((pos = s.find(delimiter)) != std::string::npos) {
@@ -190,6 +193,12 @@ enum actions { Q , CN , CE};
 
 int scanner(string command, vector<string> &tokens){
     tokens = parser(command);
+    cout<<endl;
+    for(string s:tokens){
+        cout<<s<<"  ";
+    }
+
+
     if(command == "Q"  ){
         return Q;
     }
@@ -215,6 +224,7 @@ void WRITE(int sockfd){
     buff_tx = "NN" + zeros(nickname.size(),3) + nickname;
     int n = write(sockfd, buff_tx.c_str(), buff_tx.size());
     if (n < 0) perror("ERROR writing to server");
+
 
     do{
         //get command

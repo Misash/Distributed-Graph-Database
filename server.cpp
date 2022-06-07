@@ -108,7 +108,7 @@ void sendUserList(int connfd){
 
 void READ(int connfd)
 {
-
+    cout<<"\n\n read \n\n";
     char buff_rx[1010];
     char nickname[1000];
     int n ;
@@ -118,19 +118,17 @@ void READ(int connfd)
     {
         bzero(buff_rx,1010); //clean buffer
         read(connfd , buff_rx , 5); // read action and size
-
-
-
         //new guest node
         if(buff_rx[0] == 'N' && buff_rx[1] =='N')
         {
+
             int size = atoi(&buff_rx[2]);
             bzero(nickname,1000); //clean buffer
             read(connfd,nickname,size);
             room[connfd] = nickname;    //add client
             message = "\n " + room[connfd] + " node created \n";
             cout<<message;
-            broadcast(message);
+//            broadcast(message);
         }
         else if(buff_rx[0] == 'C' && buff_rx[1] =='N')
         {
@@ -143,7 +141,7 @@ void READ(int connfd)
             room[nodeSelected] = buff_rx;
 
             message = "\n " + room[nodeSelected] + " storage node created \n";
-            broadcast(message);
+//            broadcast(message);
             cout<<message;
         }
         /*if(buff_rx[0] == 'C' && buff_rx[1] =='N'){
