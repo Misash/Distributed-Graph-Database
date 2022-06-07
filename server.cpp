@@ -124,15 +124,36 @@ void READ(int connfd)
         bzero(buff_rx,1010); //clean buffer
         read(connfd , buff_rx , 5); // read action and size
 
-        
-        if(buff_rx[0] == 'C' && buff_rx[1] =='N'){
+        //new guest node
+        if(buff_rx[0] == 'N' && buff_rx[1] =='N')
+        {
             int size = atoi(&buff_rx[2]);
-            bzero(buff_rx,111); //clean buffer
+            bzero(nickname,1000); //clean buffer
+            read(connfd,nickname,size);
+            room[connfd] = nickname;    //add client
+            message = "\n " + room[connfd] + " node created \n";
+            cout<<message;
+            broadcast(message);
+        }
+        //create storage node
+        else if(buff_rx[0] == 'C' && buff_rx[1] =='N')
+        {
+
+            int size = atoi(&buff_rx[2]);
+            bzero(buff_rx,1010);
             read(connfd,buff_rx,size);
-            message = "\n[" + room[connfd] + " ] : " + buff_rx + "\n" ;
+
+            int nodeSelected = 1;
+            room[nodeSelected] = buff_rx;
+            message = "\n " + room[nodeSelected] + " storage node created \n";
             broadcast(message);
             cout<<message;
         }
+
+
+
+
+
         /*else if(buff_rx[0] == 'Q'){
             message = "\n" + room[connfd] + "left the chat\n";
             cout<<message;
