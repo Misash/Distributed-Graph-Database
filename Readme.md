@@ -1,22 +1,22 @@
 # To Install (Linux): #
 
-Step 1: Update apt repository cache
+ * Step 1: * Update apt repository cache
 $ sudo apt update
 
-Step 2: Update apt-catch
+* Step 2: * Update apt-catch
 $ sudo apt upgrade
 
-Step 3: Install SQLite 3
+* Step 3: * Install SQLite 3
 $ sudo apt install sqlite3
 
-Step 4: Verify Installation
+* Step 4: * Verify Installation
 $ sqlite3 –version
 
 
 # To compile: #
 
-g++ "Insert name" -l sqlite3
-./a.out
+1. g++ "Insert name" -l sqlite3
+2. ./a.out
 
 
 
