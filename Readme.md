@@ -13,7 +13,7 @@ Step 4: Verify Installation
 $ sqlite3 –version
 
 
-To compile:
+\bold{To compile:}
 
 g++ "Insert name" -l sqlite3
 ./a.out
