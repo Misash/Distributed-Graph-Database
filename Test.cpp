@@ -1,4 +1,5 @@
-#include <iostream> 
+#include <iostream>
+#include <string>
 #include <sqlite3.h>
 #include <string>
 #include<stdio.h>
@@ -6,13 +7,13 @@
 using namespace std;
 
 
+
 // Create a callback function
 int callback(void *NotUsed, int argc, char **argv, char **azColName){
-
-
     // Return successful
     return 0;
 }
+
 
 
 struct crud{
@@ -85,10 +86,4 @@ int main()
 
     return (0); 
 }
-
-
-
-
-
-
 
