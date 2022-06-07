@@ -28,6 +28,7 @@
 #include<map>
 #include <bits/stdc++.h>
 #include <mutex>
+#include <math.h>
 
 
 using namespace std;
@@ -35,6 +36,142 @@ using namespace std;
 mutex m;
 
 map<int , string> room;
+
+
+// RSA //
+
+int modulo(int a,int n){
+    int r( a - n*(a/n) );
+    if(r<0)
+        r=a-n*((a/n)-1);
+    return r;
+}
+
+int euclides(int a ,int b){
+   int r ;
+   r = modulo(a,b);
+   while(r > 0){
+       if (r > (b/2) )
+           r = b - r;
+       a = b;
+       b = r;
+       r = modulo(a,b);
+   }
+   return b ;
+}
+
+int euclidesExtendido(int a ,int b){
+   int res;
+   int r1{a} , r2 {b} , s1{1} , s2{0} , t1{0} ,t2{1} ;
+   int q , r , s , t;
+ 
+   while(r2 > 0 ){
+       q = r1/r2;
+ 
+       r = r1 - q*r2 ;
+       r1 = r2 ; r2 = r ;
+ 
+       s = s1 - q*s2;
+       s1 = s2 ; s2 = s ;
+ 
+       t = t1 - q*t2 ;
+       t1 = t2 ; t2 = t;
+   }
+   res = s1 ;
+   return res;
+}
+
+int inversa(int x , int y ){
+    int num ;
+    num = euclides(x,y);
+    if( num == 1){
+        int aux;
+        aux = euclidesExtendido(x,y);
+        if (aux  < 0 )
+            aux = modulo(aux , y );
+        return  aux;
+    }
+    else{
+        num = 0; 
+        cout << "NO TIENE INVERSA" << endl;
+        return num;
+    }
+}
+
+int modPow(int a ,int n,int m){
+
+    int exp (1);
+    int x = modulo(a,m);
+
+    while(n>0){
+        if(modulo(n, int(2)) == 1)
+            exp = modulo(exp*x,m);
+
+        x = modulo(x*x,m);
+        n/=2;
+    }
+
+    return exp;
+}
+
+int gcd(int a, int b) {
+   int t;
+   while(1) {
+      t= a%b;
+      if(t==0)
+      return b;
+      a = b;
+      b= t;
+   }
+}
+
+class RSA{
+    private:
+    int d;
+    public:
+    int n ;
+    int e;
+    RSA();
+    RSA(int , int);
+    void generarClaves();
+    int cifrado(int);
+    int descifrado(int);
+};
+
+RSA::RSA(){
+    generarClaves();
+}
+
+RSA::RSA(int n,int e){
+    this -> n = n ;
+    this -> e = e ;
+}
+
+void RSA::generarClaves(){
+    int p ;
+    int q;
+    p = 13;
+    q = 11;
+    n = p*q;
+    int fi_n = (p-1)*(q-1);
+    e = 7 ;
+    d = inversa(e,fi_n);
+}
+
+int RSA::cifrado(int mensaje){
+    int tem;
+    tem = modPow(mensaje, e, n);
+    return tem;
+}
+
+int RSA::descifrado(int mensaje){
+    int tem;
+    tem = modPow(mensaje , d, n);
+    return tem;
+}
+
+//   RSA  //
+
 
 inline string zeros(int num, int digit=3){
     string strNum = to_string(num);
@@ -113,6 +250,9 @@ void READ(int connfd)
     char nickname[1000];
     int n ;
     string message, buffer , action , ClientsSize;
+
+    RSA receptor;
+    RSA emisor(receptor.n,receptor.e);
 
     for(;;)
     {
@@ -272,5 +412,4 @@ int main() /* input arguments are not used */
 
     return 0;
 }
-
 
