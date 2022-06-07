@@ -1,4 +1,4 @@
-#To Install (Linux):#
+# To Install (Linux): #
 
 Step 1: Update apt repository cache
 $ sudo apt update
@@ -13,14 +13,14 @@ Step 4: Verify Installation
 $ sqlite3 –version
 
 
-#To compile:#
+# To compile: #
 
 g++ "Insert name" -l sqlite3
 ./a.out
 
 
 
-#Credits:#
+# Credits: #
 - Andre Alvarez
 - Aaron Apaza
 - Jorge Huanca
