@@ -119,12 +119,32 @@ void READ(int connfd)
         bzero(buff_rx,1010); //clean buffer
         read(connfd , buff_rx , 5); // read action and size
 
-        
-        if(buff_rx[0] == 'C' && buff_rx[1] =='N'){
-            action = "CN";
-            ClientsSize = zeros(room.size());
-            buffer = action + ClientsSize ;
-            cout << "Protocolo:" << buffer << endl;
+
+
+        //new guest node
+        if(buff_rx[0] == 'N' && buff_rx[1] =='N')
+        {
+            int size = atoi(&buff_rx[2]);
+            bzero(nickname,1000); //clean buffer
+            read(connfd,nickname,size);
+            room[connfd] = nickname;    //add client
+            message = "\n " + room[connfd] + " node created \n";
+            cout<<message;
+            broadcast(message);
+        }
+        else if(buff_rx[0] == 'C' && buff_rx[1] =='N')
+        {
+
+            int size = atoi(&buff_rx[2]);
+            bzero(buff_rx,1010);
+            read(connfd,buff_rx,size);
+
+            int nodeSelected = 0;
+            room[nodeSelected] = buff_rx;
+
+            message = "\n " + room[nodeSelected] + " storage node created \n";
+            broadcast(message);
+            cout<<message;
         }
         /*if(buff_rx[0] == 'C' && buff_rx[1] =='N'){
             int size = atoi(&buff_rx[2]);
