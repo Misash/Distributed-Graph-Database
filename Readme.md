@@ -18,6 +18,11 @@ $ sqlite3 –version
 1. g++ "Insert name" -l sqlite3
 2. ./a.out
 
+# To open SQLite # 
+
+1. sqlite3 "Name".db
+2. tables
+3. .databases
 
 
 # Credits: #
