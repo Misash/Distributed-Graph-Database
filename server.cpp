@@ -72,12 +72,9 @@ void sendMsgByNick(int connfd , string nick , string msg){
 
     if(findNickname(it,nick)){
         string a = "CN";
-        sprintf(tamano,"%03d",msg.size());
-        tamano[4]='\0';
-        string t = tamano;
-        string buffer = a + t + msg ;
+        string buffer = a + zeros(nick.size()) + nick ;
         write(it->first, buffer.c_str(), buffer.size());
-        cout << "Node Name: " << buffer << endl;
+        cout << "\nto node "+ nick +": " << buffer << endl;
     }else{
         string errormsg = "\ninvalid node try again\n";
         string buffer = "E" + zeros(errormsg.size()) + errormsg ;
@@ -108,7 +105,7 @@ void sendUserList(int connfd){
 
 void READ(int connfd)
 {
-    cout<<"\n\n read \n\n";
+//    cout<<"\n\n read \n\n";
     char buff_rx[1010];
     char nickname[1000];
     int n ;
@@ -137,12 +134,13 @@ void READ(int connfd)
             bzero(buff_rx,1010);
             read(connfd,buff_rx,size);
 
-            int nodeSelected = 0;
+
+            int nodeSelected = connfd;
             room[nodeSelected] = buff_rx;
 
             message = "\n " + room[nodeSelected] + " storage node created \n";
-//            broadcast(message);
             cout<<message;
+            sendMsgByNick(connfd,buff_rx,buff_rx);
         }
         /*if(buff_rx[0] == 'C' && buff_rx[1] =='N'){
             int size = atoi(&buff_rx[2]);
@@ -165,35 +163,35 @@ void READ(int connfd)
     cout << "Read_thread termino.\n";
 }
 
-
-void WRITE(int connfd){
-
-    do{
-        string buff_tx;
-
-        //send message
-        getline(cin,buff_tx);
-
-        if(buff_tx == "Q"  ){
-            buff_tx += "000" ;
-//            cout << "\nProtocolo:" << buff_tx <<endl;
-            write(connfd,buff_tx.c_str(),4);
-            break;
-        }
-
-        //write message
-        buff_tx = "CN" + zeros(buff_tx.size())  + buff_tx ;
-        int n = write(connfd, buff_tx.c_str(), buff_tx.size());
-//        cout << "\nProtocolo:" << buff_tx <<endl;
-        if(n < 0) perror("\nERROR writing to client");
-
-    }while(true);
-
-    // receptions will be disallowed
-    shutdown(connfd, SHUT_RDWR);
-    close(connfd);
-
-}
+//
+//void WRITE(int connfd){
+//
+//    do{
+//        string buff_tx;
+//
+//        //send message
+//        getline(cin,buff_tx);
+//
+//        if(buff_tx == "Q"  ){
+//            buff_tx += "000" ;
+////            cout << "\nProtocolo:" << buff_tx <<endl;
+//            write(connfd,buff_tx.c_str(),4);
+//            break;
+//        }
+//
+//        //write message
+//        buff_tx = "CN" + zeros(buff_tx.size())  + buff_tx ;
+//        int n = write(connfd, buff_tx.c_str(), buff_tx.size());
+////        cout << "\nProtocolo:" << buff_tx <<endl;
+//        if(n < 0) perror("\nERROR writing to client");
+//
+//    }while(true);
+//
+//    // receptions will be disallowed
+//    shutdown(connfd, SHUT_RDWR);
+//    close(connfd);
+//
+//}
 
 
 
@@ -263,7 +261,7 @@ int main() /* input arguments are not used */
         else
         {
             thread (READ, connfd).detach();
-            thread (WRITE, connfd).detach();
+//            thread (WRITE, connfd).detach();
 
         }
 

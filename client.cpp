@@ -26,7 +26,7 @@
 
 
 /*headers*/
-#include "crud.h"
+#include "./Test.cpp"
 
 
 using namespace std;
@@ -75,103 +75,31 @@ bool isSendFile(string buff){
     return buff.size()> 6 && buff[0] == 'F' && buff[1] == '(' && buff.find(',') !=std::string::npos && buff[buff.size()-1] == ')';
 }
 
+enum actions { Q , CN , CE};
 
 void READ(int sockfd){
 
+
     char buff_rx[1010];
+
 
     for(;;){
 
-
         bzero(buff_rx,1010); //clean buffer
-        read(sockfd , buff_rx , 4); // read action and size
+        read(sockfd , buff_rx , 5); // read action and size
 
-        if(buff_rx[0] == 'M' ){
-            int size = atoi(&buff_rx[1]);
-            bzero(buff_rx,1010); //clean buffer
+
+        if(buff_rx[0] == 'C' && buff_rx[1] =='N')
+        {
+
+            int size = atoi(&buff_rx[2]);
+            bzero(buff_rx,1010);
             read(sockfd,buff_rx,size);
-            cout<<"\n "<<buff_rx<<" \n";
-//            printf("\n[ SERVER ] : %s\n" ,buff_rx);
+
+            crud db(sockfd);
+            db.insertNode(buff_rx,"telefono","999");
         }
-        else if(buff_rx[0] == 'F'){
-            //read file Name
-            string fileName;
-            int size = atoi(&buff_rx[1]);
-            bzero(buff_rx,1000); //clean buffer
-            read(sockfd,buff_rx,size);
-            fileName = buff_rx;
 
-            //readNick
-            string nick;
-            bzero(buff_rx,1010); //clean buffer
-            read(sockfd,buff_rx,2);
-            size = atoi(&buff_rx[0]);
-            bzero(buff_rx,1010); //clean buffer
-            read(sockfd,buff_rx,size);
-            nick = buff_rx;
-
-
-            //readfile Size
-            bzero(buff_rx,1000); //clean buffer
-            read(sockfd,buff_rx,9);
-            int file_size = atoi(&buff_rx[0]);
-
-
-            //read bytes
-            char *buffer;
-            int SIZE = 1024;
-            fileName = "./recibidos/" + fileName;
-
-            ofstream file;
-            file.open(fileName , ios::out);
-
-            while ( file_size) {
-
-                if (file_size < SIZE) {
-                    SIZE = file_size;
-                }
-
-                buffer = new char[SIZE];
-
-                if (read(sockfd, buffer, SIZE) > 0) {
-                    file.write(buffer,SIZE);
-                }
-                file_size -= SIZE;
-            }
-            string msg = "\n[ " + nick + " ] <private>:  send you the file : (" + fileName +")\n" ;
-            cout<<msg;
-
-            file.close();
-
-        }
-        else if(buff_rx[0] == 'Q'){
-            printf("\n server left the chat \n");
-            break;
-        }
-        else if(buff_rx[0] == 'E'){
-            int size = atoi(&buff_rx[1]);
-            bzero(buff_rx,1010); //clean buffer
-            read(sockfd,buff_rx,size);
-            cout<<"\n "<<buff_rx<<" \n";
-        }
-        else if(buff_rx[0] == 'l'){
-            string nick ;
-            int nickSize ;
-            int size = atoi(&buff_rx[1]);
-            cout<<"\n User List: \n";
-            while(size--) {
-                //read nickname size
-                bzero(buff_rx,1010); //clean buffer
-                read(sockfd,buff_rx,2);
-                int nickSize = atoi(&buff_rx[0]);
-
-                //read nickname
-                bzero(buff_rx,1010); //clean buffer
-                read(sockfd,buff_rx,nickSize);
-                nick = buff_rx;
-                cout<<"\t-> "<<nick<<" \n";
-            }
-        }
 
     }
 
@@ -195,15 +123,15 @@ vector<string> parser(string s){
     return tokens;
 }
 
-enum actions { Q , CN , CE};
+
 
 int scanner(string command, vector<string> &tokens){
     tokens = parser(command);
     cout<<endl;
+
     for(string s:tokens){
         cout<<s<<"  ";
     }
-
 
     if(command == "Q"  ){
         return Q;

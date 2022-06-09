@@ -75,15 +75,15 @@ struct crud{
 
 };
 
-
-int main() 
-{
-
-    crud bd(1);
-
-    bd.insertNode("julio","telefono","999");
-    bd.insertEdge("julio","profesor","redes");
-
-    return (0); 
-}
+//
+//int main()
+//{
+//
+//    crud bd(1);
+//
+//    bd.insertNode("julio","telefono","999");
+//    bd.insertEdge("julio","profesor","redes");
+//
+//    return (0);
+//}
 
