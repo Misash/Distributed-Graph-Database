@@ -9,7 +9,10 @@ $ sudo apt upgrade
 * Step 3: * Install SQLite 3
 $ sudo apt install sqlite3
 
-* Step 4: * Verify Installation
+* Step 4: * Install SQLite dev tools
+$ sudo apt install libsqlite3-dev
+
+* Step 5: * Verify Installation
 $ sqlite3 –version
 
 
