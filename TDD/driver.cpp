@@ -39,7 +39,45 @@ int main () {
         ORM orm(pc_db_pivot);
         orm.insert_node(node, attribute, value) ? cout << "Node inserted in " << pc_db_pivot << endl : cout << "Node not inserted" << endl;;     
         break;
-      }    
+      }
+      case 2: {
+        string nodeFrom, relation, nodeTo;
+        cout << "NodeFrom: ";
+        cin >> nodeFrom;
+        cout << "Relation: ";
+        cin >> relation;
+        cout << "NodeTo: ";
+        cin >> nodeTo;
+        pc_number = receptor.hashCipher(nodeFrom);
+        pc_db_pivot = "pc" + to_string(pc_number) + ".db";
+        ORM orm(pc_db_pivot);
+        orm.insert_edge(nodeFrom, relation, nodeTo) ? cout << "Edge inserted in " << pc_db_pivot << endl : cout << "Edge not inserted" << endl;
+        break;
+      }
+      case 3: {
+        string node_, attribute_, value_;
+        cout << "Node: ";
+        cin >> node_;
+        cout << "Attribute: ";
+        cin >> attribute_;
+        cout << "Value: ";
+        cin >> value_;
+        pc_number = receptor.hashCipher(node_);
+        pc_db_pivot = "pc" + to_string(pc_number) + ".db";
+        ORM orm(pc_db_pivot);
+        orm.select_node(node_, attribute_, value_) ? cout << "Node selected in " << pc_db_pivot << endl : cout << "Node not selected" << endl;
+        break;
+      }
+      case 4: {
+        string node_;
+        cout << "Node: ";
+        cin >> node_;
+        pc_number = receptor.hashCipher(node_);
+        pc_db_pivot = "pc" + to_string(pc_number) + ".db";
+        ORM orm(pc_db_pivot);
+        orm.drop_node(node_) ? cout << "Node dropped in " << pc_db_pivot << endl : cout << "Node not dropped" << endl;
+        break;
+      }
     default:
       break;
     }
