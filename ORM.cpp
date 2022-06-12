@@ -88,7 +88,7 @@ struct ORM {
         return check("Node update successful") ? true : false;
     }
 
-    bool update_edge(string _neFrom, string _relation, string _nodeTo) {
+    bool update_edge(string _nodeFrom, string _relation, string _nodeTo) {
         string sql = "UPDATE EDGES SET NODE_TO = '" + _nodeTo + "' WHERE NODE_FROM = '" + _nodeFrom + "' AND RELATION = '" + _relation + "';";
         rc = sqlite3_exec(db, sql.c_str(), callback, 0, &zErrMsg);
         return check("Edge update successful") ? true : false;
@@ -128,18 +128,15 @@ struct ORM {
 
 int main () {
     ORM orm("test.db");
-
-    // orm.insert_node("Julio", "email", "julio@email.com");
-    // orm.insert_node("Redes y Comunicacion", "Semestre", "7");
-
+    int option;
     while(1){
         cout << "1. Insert node" << endl;
         cout << "2. Insert edge" << endl;
         cout << "3. Select node" << endl;
-        int option;
+        cout << "4. Drop Node" << endl;
         cin >> option;
         switch(option){
-            case 1:
+            case 1: {
                 string node, attribute, value;
                 cout << "Node: ";
                 cin >> node;
@@ -149,7 +146,8 @@ int main () {
                 cin >> value;
                 orm.insert_node(node, attribute, value);
                 break;
-            case 2:
+            }
+            case 2: {
                 string nodeFrom, relation, nodeTo;
                 cout << "NodeFrom: ";
                 cin >> nodeFrom;
@@ -159,7 +157,8 @@ int main () {
                 cin >> nodeTo;
                 orm.insert_edge(nodeFrom, relation, nodeTo);
                 break;
-            case 3:
+            }
+            case 3:{
                 string node_, attribute_, value_;
                 cout << "Node: ";
                 cin >> node_;
@@ -169,11 +168,20 @@ int main () {
                 cin >> value_;
                 orm.select_node(node_, attribute_, value_);
                 break;
-            default:
+            }
+            case 4:{
+                string node_;
+                cout << "Node: ";
+                cin >> node_;
+                orm.drop_node(node_);
+                break;
+            }
+            default:{
                 cout << "Invalid option" << endl;
-                break;            
+                break; 
+            }           
         }
     }
 
     return 0;
-}d
+}
