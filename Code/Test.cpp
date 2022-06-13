@@ -67,7 +67,7 @@ struct crud{
         sql3_exec();
     }
 
-    void insertNode(string node, string attribute , string value){
+    void insertNode(string node, string attribute ="", string value=""){
         sql = "INSERT INTO NODES ('NODE' , 'ATTRIBUTE','VALUE') VALUES ('"+node+"' , '"+attribute+"' , '"+value+"');";
         sql3_exec();
     }

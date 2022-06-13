@@ -97,7 +97,7 @@ void READ(int sockfd){
             read(sockfd,buff_rx,size);
 
             crud db(sockfd);
-            db.insertNode(buff_rx,"telefono","999");
+            db.insertNode(buff_rx);
         }
 
 

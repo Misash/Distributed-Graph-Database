@@ -39,7 +39,7 @@ struct ORM {
     }
 
 
-    bool insert_node(string node, string _attribute, string _value) {
+    bool insert_node(string node, string _attribute="", string _value="") {
         string sql = "INSERT INTO NODES ('NODE','ATTRIBUTE','VALUE') VALUES ('" + node + "' , '" + _attribute + "' , '" + _value + "');";
         rc = sqlite3_exec(db, sql.c_str(), callback, 0, &zErrMsg);
         return check("Node insertion successful") ? true : false;

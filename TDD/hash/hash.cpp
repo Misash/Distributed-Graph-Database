@@ -5,7 +5,7 @@ using namespace std;
 
 int main () {
   RSA receptor(9);
-  cout << "PC assigned:" << receptor.hashCipher("Julio")<< endl;
+  cout << "PC assigned:" << receptor.hashCipher("besro")<< endl;
 
   // RSA emisor(receptor.n, receptor.e);
   // int aux = emisor.cifrado(9);
