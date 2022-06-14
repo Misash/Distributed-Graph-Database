@@ -16,12 +16,12 @@ size_t real_read(int fd, void *buf, size_t count)
 {
     long ret;
 
-    __asm__ volatile ("int $0x80" 
-        : "=a" (ret),
-        "+b" (fd),     /* pass arg1 in ebx ("b") */
-        "+c" (buf),     /* pass arg2 in ecx ("c") */
-        "+d" (count)  
-        : "0" (2)); 
+    __asm__ volatile ("int $0x80"   //AssemblerTemplate     // Aqui se trabaja con la arquitura de la maquina juega con el comando 
+        : "=a" (ret),               //OutputOperands
+        "+b" (fd),                  //InputOperands         /* pass arg1 in ebx ("b") */
+        "+c" (buf),                 //InputOperands         /* pass arg2 in ecx ("c") */
+        "+d" (count)                //InputOperands         /* pass arg2 in ecx ("d") */
+        : "0" (2));                 //Clobbers 
 
     if (ret >= 0)
     {
@@ -30,6 +30,10 @@ size_t real_read(int fd, void *buf, size_t count)
     errno = -ret;
     return -1;
 }
+
+
+
+//                                      Tester                                  //
 
 
 int main(int argc, char *argv[])
@@ -43,4 +47,3 @@ int main(int argc, char *argv[])
     std::cout<< temporal; 
     return 0;
 }
-
