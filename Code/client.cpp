@@ -91,14 +91,24 @@ void READ(int sockfd){
 
         if(buff_rx[0] == 'C' && buff_rx[1] =='N')
         {
-
+    
             int size = atoi(&buff_rx[2]);
-            bzero(buff_rx,1010);
             read(sockfd,buff_rx,size);
+            string id(buff_rx,size);
 
-            crud db(sockfd);
+            bzero(buff_rx,1010);
+            read(sockfd,buff_rx,3);
+            size = atoi(&buff_rx[0]);
+            read(sockfd,buff_rx,size);
+            string nodeName(buff_rx,size);
+            
+            cout<<"\n"<<id<<"\n";
+
+            crud db(stoi(id));
             db.insertNode(buff_rx);
         }
+    
+
 
 
     }
@@ -176,7 +186,9 @@ void WRITE(int sockfd){
             break;
         }
         if(action == CN){
-            buff_tx = "CN" + zeros(command.size(),3) + tokens[1];
+            
+            buff_tx = "CN" + zeros(tokens[1].size(),3) + tokens[1];
+            cout<<"\nenviar a server : "<<buff_tx<<"\n";
             int n = write(sockfd, buff_tx.c_str(), buff_tx.size());
             if (n < 0) perror("ERROR writing to server");
         }

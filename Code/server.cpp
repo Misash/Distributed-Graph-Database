@@ -224,21 +224,53 @@ void sendMsgByNick(int connfd , string nick , string msg){
 
 
 void sendUserList(int connfd){
-    string buffer , action , ClientsSize , nick , nickSize;
+    string buffer , action , ClientsSize , nick , nickSize,id;
 
-    action = "CE";
+    action = "UL";
     ClientsSize = zeros(room.size());
 
     buffer = action + ClientsSize ;
 
     for (auto it=room.begin(); it!=room.end(); ++it){
+        id = it->first;
         nick = it->second;
         nickSize = zeros(nick.size(),2);
-        buffer += nickSize + nick ;
+        buffer += id +  nickSize + nick ;
     }
     int n = write(connfd, buffer.c_str(), buffer.size());
     cout << "Protocolo:" << buffer << endl;
 }
+
+//////////////////////////////////////////////////////////////////////////
+
+bool findNodeName(map<int,string>::iterator &it , string nick){
+    for ( it = room.begin(); it!=room.end(); ++it){
+        if(it->second == nick) return 1;
+    }
+    return 0;
+}
+
+
+void sendToNode(int connfd , string node , string buffer){
+ 
+    map<int,string>::iterator it;
+
+    if(findNickname(it,node)){
+        write(it->first, buffer.c_str(), buffer.size());
+        cout << "\nto node "+ node +": " << buffer << endl;
+    }else{
+        string errormsg = "\ninvalid node try again\n";
+        string buffer = "E" + zeros(errormsg.size()) + errormsg ;
+        write(connfd,buffer.c_str(),buffer.size());
+        cout << "Error Protocolo: not found " << node << endl;
+    }
+}
+
+
+
+
+
+
 
 void READ(int connfd)
 {
@@ -263,7 +295,7 @@ void READ(int connfd)
             bzero(nickname,1000); //clean buffer
             read(connfd,nickname,size);
             room[connfd] = nickname;    //add client
-            message = "\n " + room[connfd] + " node created \n";
+            message = "\n " + room[connfd] + " node "+ to_string(connfd) + " created \n";
             cout<<message;
 //            broadcast(message);
         }
@@ -271,16 +303,27 @@ void READ(int connfd)
         {
 
             int size = atoi(&buff_rx[2]);
-            bzero(buff_rx,1010);
+            char node[1010];
             read(connfd,buff_rx,size);
 
+            cout<<"\nsize: "<<size<<"\n";
+            string nodeName (buff_rx,size);
+
+
+            string a = "CN";
+            cout<<"\nid: "<< zeros(connfd)<<"\n";
+            cout<<"\nidstr: "<<to_string(connfd)<<"\n";
+            string buffer = a + zeros(to_string(connfd).size()) + to_string(connfd) + zeros(nodeName.size()) + nodeName ;
+            sendToNode(connfd,"guest",buffer);
 
             int nodeSelected = connfd;
-            room[nodeSelected] = buff_rx;
-
+            room[nodeSelected] = nodeName;
             message = "\n " + room[nodeSelected] + " storage node created \n";
             cout<<message;
-            sendMsgByNick(connfd,buff_rx,buff_rx);
+
+
+
+        
         }
         /*if(buff_rx[0] == 'C' && buff_rx[1] =='N'){
             int size = atoi(&buff_rx[2]);
@@ -303,35 +346,50 @@ void READ(int connfd)
     cout << "Read_thread termino.\n";
 }
 
-//
-//void WRITE(int connfd){
-//
-//    do{
+
+void WRITE(int connfd){
+
+   do{
 //        string buff_tx;
-//
+
 //        //send message
 //        getline(cin,buff_tx);
-//
+
 //        if(buff_tx == "Q"  ){
 //            buff_tx += "000" ;
-////            cout << "\nProtocolo:" << buff_tx <<endl;
+// //            cout << "\nProtocolo:" << buff_tx <<endl;
 //            write(connfd,buff_tx.c_str(),4);
 //            break;
 //        }
-//
+
 //        //write message
 //        buff_tx = "CN" + zeros(buff_tx.size())  + buff_tx ;
 //        int n = write(connfd, buff_tx.c_str(), buff_tx.size());
-////        cout << "\nProtocolo:" << buff_tx <<endl;
+// //        cout << "\nProtocolo:" << buff_tx <<endl;
 //        if(n < 0) perror("\nERROR writing to client");
-//
-//    }while(true);
-//
-//    // receptions will be disallowed
-//    shutdown(connfd, SHUT_RDWR);
-//    close(connfd);
-//
-//}
+
+      string buff_tx;
+
+       //send message
+       getline(cin,buff_tx);
+
+    if(buff_tx == "\\list"){
+        for ( auto it = room.begin(); it!=room.end(); ++it){
+            cout<<"\n node: "<<it->first<<" "<<it->second;
+        }
+    }
+
+
+
+
+
+   }while(true);
+
+   // receptions will be disallowed
+   shutdown(connfd, SHUT_RDWR);
+   close(connfd);
+
+}
 
 
 
@@ -401,7 +459,7 @@ int main() /* input arguments are not used */
         else
         {
             thread (READ, connfd).detach();
-//            thread (WRITE, connfd).detach();
+           thread (WRITE, connfd).detach();
 
         }
 
