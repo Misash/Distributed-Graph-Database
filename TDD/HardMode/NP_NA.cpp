@@ -30,7 +30,7 @@
 using namespace std;
 
 #define TAM_BUFFER 1024
-#define N_SLAVES 4
+#define N_SLAVES 2
 
 int myPORT;
 
@@ -44,7 +44,7 @@ string client(int PORT, string mensaje)
   struct hostent *host;
   struct sockaddr_in servaddr;
 
-  host = (struct hostent *)gethostbyname((char *)"127.0.0.1");
+  host = (struct hostent *)gethostbyname((char *)"159.223.180.58");
 
   // Creating socket file descriptor
   if ((sockfd = socket(AF_INET, SOCK_DGRAM, 0)) < 0)
@@ -59,6 +59,17 @@ string client(int PORT, string mensaje)
   servaddr.sin_family = AF_INET;
   servaddr.sin_port = htons(PORT);
   servaddr.sin_addr = *((struct in_addr *)host->h_addr);
+
+  printf("[%s] [%s : %hd]\n", "Servidor: ", inet_ntoa(servaddr.sin_addr), ntohs(servaddr.sin_port));
+
+  char myIP[16];
+  socklen_t len2 = sizeof(servaddr);
+  getsockname(sockfd, (struct sockaddr *)&servaddr, &len2);
+  inet_ntop(AF_INET, &servaddr.sin_addr, myIP, sizeof(myIP));
+
+  string ip = myIP;
+  int port = ntohs(servaddr.sin_port);
+
 
   int n, len;
 
@@ -389,16 +400,15 @@ void ser(int PORT)
     {
       if (mensaje[1] == 'N')
       {
-        
+
         cout << "Entre a CN" << endl;
-        cout << "Mensaje Completo: "<< mensaje << endl;
+        cout << "Mensaje Completo: " << mensaje << endl;
         int sizeNombre = stoi(mensaje.substr(2, 2));
         string nombre = mensaje.substr(4, sizeNombre);
 
-        
         int sizeAttr = stoi(mensaje.substr(6 + sizeNombre, 2));
         string attr_name = mensaje.substr(8 + sizeNombre, sizeAttr);
-        
+
         int sizeValue = stoi(mensaje.substr(8 + sizeNombre + sizeAttr, 2));
         string value = mensaje.substr(10 + sizeNombre + sizeAttr, sizeValue);
 
@@ -407,8 +417,8 @@ void ser(int PORT)
 
         ORM orm("db_NA_" + to_string(nSlave) + ".db");
 
-        cout << "nodo creado: " <<nombre << endl;
-        cout <<  "almacenado en: " <<nSlave << endl;
+        cout << "nodo creado: " << nombre << endl;
+        cout << "almacenado en: " << nSlave << endl;
 
         if (8000 + nSlave == myPORT)
         {
@@ -440,15 +450,25 @@ void ser(int PORT)
       else if (mensaje[1] == 'R')
       {
         cout << "Entre a CR" << endl;
+        cout << "mensaje completo: " << mensaje << endl;
+
         int sizeNombre = stoi(mensaje.substr(2, 2));
         string nombre = mensaje.substr(4, sizeNombre);
+
         int sizeNombre2 = stoi(mensaje.substr(4 + sizeNombre, 2));
         string nombre2 = mensaje.substr(4 + sizeNombre + 2, sizeNombre2);
+
+        // int sizeNombre2 = stoi(mensaje.substr(6 + sizeNombre + sizeRelation, 2));
+        // string nombre2 = mensaje.substr(8 + sizeNombre + sizeRelation, sizeNombre2);
 
         int nSlave1 = stringToASCII(nombre) % N_SLAVES;
         int nSlave2 = stringToASCII(nombre2) % N_SLAVES;
 
+        ORM orm1("db_NA_" + to_string(nSlave1) + ".db");
+        ORM orm2("db_NA_" + to_string(nSlave2) + ".db");
+
         cout << nombre << endl;
+        // cout << relation << endl;
         cout << nombre2 << endl;
         cout << nSlave1 << endl;
         cout << nSlave2 << endl;
@@ -459,12 +479,14 @@ void ser(int PORT)
           if (index != -1)
           {
             miGrafo.nodos[index].addRelacion(nombre2);
+            // orm1.insert_edge(nombre, "relacionado", nombre2);
           }
 
           index = miGrafo.buscarNodo(nombre2);
           if (index != -1)
           {
             miGrafo.nodos[index].addRelacion(nombre);
+            // orm2.insert_edge(nombre, "relacionado", nombre2);
           }
 
           miGrafo.print();
@@ -479,9 +501,11 @@ void ser(int PORT)
         else if (8000 + nSlave1 == myPORT)
         {
           int index = miGrafo.buscarNodo(nombre);
+
           if (index != -1)
           {
             miGrafo.nodos[index].addRelacion(nombre2);
+            orm1.insert_edge(nombre, "relacionado", nombre2);
           }
 
           miGrafo.print();
@@ -499,6 +523,7 @@ void ser(int PORT)
           if (index != -1)
           {
             miGrafo.nodos[index].addRelacion(nombre);
+            orm2.insert_edge(nombre, "relacionado", nombre2);
           }
 
           miGrafo.print();
@@ -653,324 +678,325 @@ void ser(int PORT)
     }
     else if (mensaje[0] == 'U')
     {
-      if (mensaje[1] == 'N')
+      cout << "Funcionalidad no implementada AUN" << endl;
+      // if (mensaje[1] == 'N')
+      // {
+      //   cout << "Entre a UN\n";
+      //   int sizeNombre = stoi(mensaje.substr(2, 2));
+      //   string nombre = mensaje.substr(4, sizeNombre);
+      //   int nSlave = stringToASCII(nombre) % N_SLAVES;
+
+      //   cout << nombre << endl;
+      //   cout << nSlave << endl;
+
+      //   if (8000 + nSlave == myPORT)
+      //   {
+      //     int sizeNombre2 = stoi(mensaje.substr(4 + sizeNombre, 2));
+      //     string nombre2 = mensaje.substr(4 + sizeNombre + 2, sizeNombre2);
+      //     int index = miGrafo.buscarNodo(nombre);
+
+      //     // TODO: LAS RELACIONES NO SE ACTUALIZAN, LAS RELACIONES DE LOS OTROS DESAPARECEN CAMBIAR
+      //     if (index != -1)
+      //     {
+      //       vector<string> atr = miGrafo.nodos[index].atributos;
+      //       vector<string> rels = miGrafo.nodos[index].relaciones;
+
+      //       Nodo nNodo;
+      //       nNodo.setNombre(nombre2);
+      //       nNodo.atributos = atr;
+      //       nNodo.relaciones = rels;
+
+      //       int nuevoSlave = stringToASCII(nombre2) % N_SLAVES;
+
+      //       string respuesta;
+
+      //       miGrafo.delNodo(nombre);
+
+      //       if (nuevoSlave + 8000 == myPORT)
+      //       {
+
+      //         miGrafo.addNodo(nNodo);
+
+      //         for (int i = 0; i < rels.size(); i++)
+      //         {
+      //           int relSlave = stringToASCII(rels[i]) % N_SLAVES;
+
+      //           if (relSlave + 8000 == myPORT)
+      //           {
+      //             int index3 = miGrafo.buscarNodo(rels[i]);
+      //             miGrafo.nodos[index3].addRelacion(nombre2);
+      //           }
+      //           else
+      //           {
+      //             string input = "CR";
+      //             input += rels[i].size() < 10 ? "0" + to_string(rels[i].size()) : to_string(rels[i].size());
+      //             input += rels[i];
+      //             input += nombre2.size() < 10 ? "0" + to_string(nombre2.size()) : to_string(nombre2.size());
+      //             input += nombre2;
+      //             respuesta = client(8000 + nuevoSlave, input);
+      //           }
+      //         }
+      //       }
+      //       else
+      //       {
+      //         respuesta = client(nuevoSlave + 8000, nNodo.mk());
+
+      //         for (int i = 0; i < rels.size(); i++)
+      //         {
+      //           int relSlave = stringToASCII(rels[i]) % N_SLAVES;
+
+      //           if (relSlave + 8000 == myPORT)
+      //           {
+      //             int index3 = miGrafo.buscarNodo(rels[i]);
+      //             miGrafo.nodos[index3].addRelacion(nombre2);
+      //           }
+      //           else
+      //           {
+      //             string input = "CR";
+      //             input += rels[i].size() < 10 ? "0" + to_string(rels[i].size()) : to_string(rels[i].size());
+      //             input += rels[i];
+      //             input += nombre2.size() < 10 ? "0" + to_string(nombre2.size()) : to_string(nombre2.size());
+      //             input += nombre2;
+      //             respuesta = client(8000 + nuevoSlave, input);
+
+      //             input = "CR";
+      //             input += nombre2.size() < 10 ? "0" + to_string(nombre2.size()) : to_string(nombre2.size());
+      //             input += nombre2;
+      //             input += rels[i].size() < 10 ? "0" + to_string(rels[i].size()) : to_string(rels[i].size());
+      //             input += rels[i];
+      //             respuesta = client(8000 + nuevoSlave, input);
+      //           }
+      //         }
+      //       }
+      //       // if(nuevoSlave + 8000 == myPORT){
+      //       //         miGrafo.nodos[index].setNombre(nombre2);
+
+      //       //         for (int i = 0; i < rels.size(); i++)
+      //       //         {
+      //       //                 if(stringToASCII(rels[i])%N_SLAVES + 8000 == myPORT ){
+      //       //                         int index2 = miGrafo.buscarNodo(rels[i]);
+      //       //                         if(index2 != -1){
+      //       //                                 miGrafo.nodos[index2].cambiarNombreRelacion(nombre,nombre2);
+      //       //                         }
+      //       //                 }
+      //       //                 else{
+      //       //                         // UR + SIZENOrigen + NombreOrigen + SizeNDest + NombreDest + SizeNewNombre + NewNombre
+      //       //                         string input = "UR";
+      //       //                         input += rels[i].size() < 10 ? "0" + to_string(rels[i].size()) : to_string(rels[i].size());
+      //       //                         input += rels[i];
+      //       //                         input += nombre.size() < 10 ? "0" + to_string(nombre.size()) : to_string(nombre.size());
+      //       //                         input += nombre;
+      //       //                         input += nombre2.size() < 10 ? "0" + to_string(nombre2.size()) : to_string(nombre2.size());
+      //       //                         input += nombre2;
+
+      //       //                         string rpta = client(stringToASCII(rels[i])%N_SLAVES + 8000, input);
+      //       //                 }
+      //       //         }
+
+      //       //         respuesta = "A2";
+      //       // }
+      //       // else{
+
+      //       //         miGrafo.delNodo(nombre);
+      //       //         respuesta = client(8000+nuevoSlave, nNodo.mk());
+      //       //         for(int i=0; i<rels.size(); i++){
+      //       //                 string input="CR";
+      //       //                 input += nombre2.size() < 10 ? "0" + to_string(nombre2.size()) : to_string(nombre2.size());
+      //       //                 input += nombre2;
+      //       //                 input += rels[i].size() < 10 ? "0" + to_string(rels[i].size()) : to_string(rels[i].size());
+      //       //                 input += rels[i];
+
+      //       //                 respuesta = client(8000+nuevoSlave, input);
+      //       //         }
+
+      //       // }
+
+      //       // miGrafo.print();
+
+      //       // RDT
+      //       char *buff = &(respuesta[0]);
+      //       sendto(sockfd, buff, strlen(buff),
+      //              MSG_CONFIRM, (const struct sockaddr *)&cliaddr,
+      //              len);
+      //     }
+      //   }
+      //   else
+      //   {
+      //     string respuesta = client(8000 + nSlave, mensaje);
+
+      //     // TODO: RDT}
+
+      //     char *buff = &(respuesta[0]);
+      //     sendto(sockfd, buff, strlen(buff),
+      //            MSG_CONFIRM, (const struct sockaddr *)&cliaddr,
+      //            len);
+      //   }
+      // }
+      // else if (mensaje[1] == 'R')
       {
-        cout << "Entre a UN\n";
-        int sizeNombre = stoi(mensaje.substr(2, 2));
-        string nombre = mensaje.substr(4, sizeNombre);
-        int nSlave = stringToASCII(nombre) % N_SLAVES;
+        //   cout << "Entre a UR\n";
+        //   int sizeNombre = stoi(mensaje.substr(2, 2));
+        //   string nombre = mensaje.substr(4, sizeNombre);
+        //   int sizeNombre2 = stoi(mensaje.substr(4 + sizeNombre, 2));
+        //   string nombre2 = mensaje.substr(4 + sizeNombre + 2, sizeNombre2);
+        //   int sizeNombre3 = stoi(mensaje.substr(4 + sizeNombre + 2 + sizeNombre2, 2));
+        //   string nombre3 = mensaje.substr(4 + sizeNombre + 2 + sizeNombre2 + 2, sizeNombre3);
 
-        cout << nombre << endl;
-        cout << nSlave << endl;
+        //   int nSlave1 = stringToASCII(nombre) % N_SLAVES;
+        //   int nSlave2 = stringToASCII(nombre2) % N_SLAVES;
+        //   int nSlave3 = stringToASCII(nombre3) % N_SLAVES;
 
-        if (8000 + nSlave == myPORT)
-        {
-          int sizeNombre2 = stoi(mensaje.substr(4 + sizeNombre, 2));
-          string nombre2 = mensaje.substr(4 + sizeNombre + 2, sizeNombre2);
-          int index = miGrafo.buscarNodo(nombre);
+        //   if (nSlave1 == nSlave2 && nSlave2 == nSlave3 && 8000 + nSlave1 == myPORT)
+        //   {
+        //     int index = miGrafo.buscarNodo(nombre);
+        //     if (index != -1)
+        //     {
+        //       miGrafo.cambiarRelacion(nombre, nombre2, nombre3);
+        //     }
+        //     index = miGrafo.buscarNodo(nombre2);
+        //     if (index != -1)
+        //     {
+        //       miGrafo.nodos[index].delRelacion(nombre);
+        //     }
+        //     index = miGrafo.buscarNodo(nombre3);
+        //     if (index != -1)
+        //     {
+        //       miGrafo.nodos[index].addRelacion(nombre);
+        //     }
+        //     string respuesta = "A2";
+        //     char *buff = &(respuesta[0]);
+        //     sendto(sockfd, buff, strlen(buff),
+        //            MSG_CONFIRM, (const struct sockaddr *)&cliaddr,
+        //            len);
+        //   }
+        //   else if (nSlave1 == nSlave2 && 8000 + nSlave1 == myPORT)
+        //   {
+        //     int index = miGrafo.buscarNodo(nombre);
+        //     if (index != -1)
+        //     {
+        //       miGrafo.cambiarRelacion(nombre, nombre2, nombre3);
+        //     }
+        //     index = miGrafo.buscarNodo(nombre2);
+        //     if (index != -1)
+        //     {
+        //       miGrafo.nodos[index].delRelacion(nombre);
+        //     }
+        //     string respuesta = "A2";
+        //     char *buff = &(respuesta[0]);
+        //     sendto(sockfd, buff, strlen(buff),
+        //            MSG_CONFIRM, (const struct sockaddr *)&cliaddr,
+        //            len);
+        //   }
+        //   else if (nSlave1 == nSlave3 && 8000 + nSlave1 == myPORT)
+        //   {
+        //     int index = miGrafo.buscarNodo(nombre);
+        //     if (index != -1)
+        //     {
+        //       miGrafo.cambiarRelacion(nombre, nombre2, nombre3);
+        //     }
+        //     index = miGrafo.buscarNodo(nombre3);
+        //     if (index != -1)
+        //     {
+        //       miGrafo.nodos[index].addRelacion(nombre);
+        //     }
+        //     string respuesta = "A2";
+        //     char *buff = &(respuesta[0]);
+        //     sendto(sockfd, buff, strlen(buff),
+        //            MSG_CONFIRM, (const struct sockaddr *)&cliaddr,
+        //            len);
+        //   }
+        //   else if (nSlave2 == nSlave3 && 8000 + nSlave2 == myPORT)
+        //   {
+        //     int index = miGrafo.buscarNodo(nombre2);
+        //     if (index != -1)
+        //     {
+        //       miGrafo.nodos[index].delRelacion(nombre);
+        //     }
+        //     index = miGrafo.buscarNodo(nombre3);
+        //     if (index != -1)
+        //     {
+        //       miGrafo.nodos[index].addRelacion(nombre);
+        //     }
+        //     string respuesta = "A2";
+        //     char *buff = &(respuesta[0]);
+        //     sendto(sockfd, buff, strlen(buff),
+        //            MSG_CONFIRM, (const struct sockaddr *)&cliaddr,
+        //            len);
+        //   }
+        //   else if (8000 + nSlave1 == myPORT)
+        //   {
+        //     int index = miGrafo.buscarNodo(nombre);
+        //     if (index != -1)
+        //     {
+        //       miGrafo.cambiarRelacion(nombre, nombre2, nombre3);
+        //     }
 
-          // TODO: LAS RELACIONES NO SE ACTUALIZAN, LAS RELACIONES DE LOS OTROS DESAPARECEN CAMBIAR
-          if (index != -1)
-          {
-            vector<string> atr = miGrafo.nodos[index].atributos;
-            vector<string> rels = miGrafo.nodos[index].relaciones;
+        //     string respuesta = "A2";
+        //     char *buff = &(respuesta[0]);
+        //     sendto(sockfd, buff, strlen(buff),
+        //            MSG_CONFIRM, (const struct sockaddr *)&cliaddr,
+        //            len);
+        //   }
+        //   else if (8000 + nSlave2 == myPORT)
+        //   {
+        //     int index = miGrafo.buscarNodo(nombre2);
+        //     if (index != -1)
+        //     {
+        //       miGrafo.nodos[index].delRelacion(nombre);
+        //     }
 
-            Nodo nNodo;
-            nNodo.setNombre(nombre2);
-            nNodo.atributos = atr;
-            nNodo.relaciones = rels;
+        //     string respuesta = "A2";
+        //     char *buff = &(respuesta[0]);
+        //     sendto(sockfd, buff, strlen(buff),
+        //            MSG_CONFIRM, (const struct sockaddr *)&cliaddr,
+        //            len);
+        //   }
+        //   else if (8000 + nSlave3 == myPORT)
+        //   {
+        //     int index = miGrafo.buscarNodo(nombre3);
+        //     if (index != -1)
+        //     {
+        //       miGrafo.nodos[index].addRelacion(nombre);
+        //     }
 
-            int nuevoSlave = stringToASCII(nombre2) % N_SLAVES;
+        //     string respuesta = "A2";
+        //     char *buff = &(respuesta[0]);
+        //     sendto(sockfd, buff, strlen(buff),
+        //            MSG_CONFIRM, (const struct sockaddr *)&cliaddr,
+        //            len);
+        //   }
+        //   else
+        //   {
+        //     string respuesta;
+        //     if (nSlave1 == nSlave2 && nSlave2 == nSlave3)
+        //       respuesta = client(8000 + nSlave1, mensaje);
+        //     else if (nSlave1 == nSlave2)
+        //     {
+        //       respuesta = client(8000 + nSlave1, mensaje);
+        //       respuesta = client(8000 + nSlave3, mensaje);
+        //     }
+        //     else if (nSlave1 == nSlave3)
+        //     {
+        //       respuesta = client(8000 + nSlave1, mensaje);
+        //       respuesta = client(8000 + nSlave2, mensaje);
+        //     }
+        //     else if (nSlave2 == nSlave3)
+        //     {
+        //       respuesta = client(8000 + nSlave1, mensaje);
+        //       respuesta = client(8000 + nSlave2, mensaje);
+        //     }
+        //     else
+        //     {
+        //       respuesta = client(8000 + nSlave1, mensaje);
+        //       respuesta = client(8000 + nSlave2, mensaje);
+        //       respuesta = client(8000 + nSlave3, mensaje);
+        //     }
 
-            string respuesta;
-
-            miGrafo.delNodo(nombre);
-
-            if (nuevoSlave + 8000 == myPORT)
-            {
-
-              miGrafo.addNodo(nNodo);
-
-              for (int i = 0; i < rels.size(); i++)
-              {
-                int relSlave = stringToASCII(rels[i]) % N_SLAVES;
-
-                if (relSlave + 8000 == myPORT)
-                {
-                  int index3 = miGrafo.buscarNodo(rels[i]);
-                  miGrafo.nodos[index3].addRelacion(nombre2);
-                }
-                else
-                {
-                  string input = "CR";
-                  input += rels[i].size() < 10 ? "0" + to_string(rels[i].size()) : to_string(rels[i].size());
-                  input += rels[i];
-                  input += nombre2.size() < 10 ? "0" + to_string(nombre2.size()) : to_string(nombre2.size());
-                  input += nombre2;
-                  respuesta = client(8000 + nuevoSlave, input);
-                }
-              }
-            }
-            else
-            {
-              respuesta = client(nuevoSlave + 8000, nNodo.mk());
-
-              for (int i = 0; i < rels.size(); i++)
-              {
-                int relSlave = stringToASCII(rels[i]) % N_SLAVES;
-
-                if (relSlave + 8000 == myPORT)
-                {
-                  int index3 = miGrafo.buscarNodo(rels[i]);
-                  miGrafo.nodos[index3].addRelacion(nombre2);
-                }
-                else
-                {
-                  string input = "CR";
-                  input += rels[i].size() < 10 ? "0" + to_string(rels[i].size()) : to_string(rels[i].size());
-                  input += rels[i];
-                  input += nombre2.size() < 10 ? "0" + to_string(nombre2.size()) : to_string(nombre2.size());
-                  input += nombre2;
-                  respuesta = client(8000 + nuevoSlave, input);
-
-                  input = "CR";
-                  input += nombre2.size() < 10 ? "0" + to_string(nombre2.size()) : to_string(nombre2.size());
-                  input += nombre2;
-                  input += rels[i].size() < 10 ? "0" + to_string(rels[i].size()) : to_string(rels[i].size());
-                  input += rels[i];
-                  respuesta = client(8000 + nuevoSlave, input);
-                }
-              }
-            }
-            // if(nuevoSlave + 8000 == myPORT){
-            //         miGrafo.nodos[index].setNombre(nombre2);
-
-            //         for (int i = 0; i < rels.size(); i++)
-            //         {
-            //                 if(stringToASCII(rels[i])%N_SLAVES + 8000 == myPORT ){
-            //                         int index2 = miGrafo.buscarNodo(rels[i]);
-            //                         if(index2 != -1){
-            //                                 miGrafo.nodos[index2].cambiarNombreRelacion(nombre,nombre2);
-            //                         }
-            //                 }
-            //                 else{
-            //                         // UR + SIZENOrigen + NombreOrigen + SizeNDest + NombreDest + SizeNewNombre + NewNombre
-            //                         string input = "UR";
-            //                         input += rels[i].size() < 10 ? "0" + to_string(rels[i].size()) : to_string(rels[i].size());
-            //                         input += rels[i];
-            //                         input += nombre.size() < 10 ? "0" + to_string(nombre.size()) : to_string(nombre.size());
-            //                         input += nombre;
-            //                         input += nombre2.size() < 10 ? "0" + to_string(nombre2.size()) : to_string(nombre2.size());
-            //                         input += nombre2;
-
-            //                         string rpta = client(stringToASCII(rels[i])%N_SLAVES + 8000, input);
-            //                 }
-            //         }
-
-            //         respuesta = "A2";
-            // }
-            // else{
-
-            //         miGrafo.delNodo(nombre);
-            //         respuesta = client(8000+nuevoSlave, nNodo.mk());
-            //         for(int i=0; i<rels.size(); i++){
-            //                 string input="CR";
-            //                 input += nombre2.size() < 10 ? "0" + to_string(nombre2.size()) : to_string(nombre2.size());
-            //                 input += nombre2;
-            //                 input += rels[i].size() < 10 ? "0" + to_string(rels[i].size()) : to_string(rels[i].size());
-            //                 input += rels[i];
-
-            //                 respuesta = client(8000+nuevoSlave, input);
-            //         }
-
-            // }
-
-            // miGrafo.print();
-
-            // RDT
-            char *buff = &(respuesta[0]);
-            sendto(sockfd, buff, strlen(buff),
-                   MSG_CONFIRM, (const struct sockaddr *)&cliaddr,
-                   len);
-          }
-        }
-        else
-        {
-          string respuesta = client(8000 + nSlave, mensaje);
-
-          // TODO: RDT}
-
-          char *buff = &(respuesta[0]);
-          sendto(sockfd, buff, strlen(buff),
-                 MSG_CONFIRM, (const struct sockaddr *)&cliaddr,
-                 len);
-        }
-      }
-      else if (mensaje[1] == 'R')
-      {
-        cout << "Entre a UR\n";
-        int sizeNombre = stoi(mensaje.substr(2, 2));
-        string nombre = mensaje.substr(4, sizeNombre);
-        int sizeNombre2 = stoi(mensaje.substr(4 + sizeNombre, 2));
-        string nombre2 = mensaje.substr(4 + sizeNombre + 2, sizeNombre2);
-        int sizeNombre3 = stoi(mensaje.substr(4 + sizeNombre + 2 + sizeNombre2, 2));
-        string nombre3 = mensaje.substr(4 + sizeNombre + 2 + sizeNombre2 + 2, sizeNombre3);
-
-        int nSlave1 = stringToASCII(nombre) % N_SLAVES;
-        int nSlave2 = stringToASCII(nombre2) % N_SLAVES;
-        int nSlave3 = stringToASCII(nombre3) % N_SLAVES;
-
-        if (nSlave1 == nSlave2 && nSlave2 == nSlave3 && 8000 + nSlave1 == myPORT)
-        {
-          int index = miGrafo.buscarNodo(nombre);
-          if (index != -1)
-          {
-            miGrafo.cambiarRelacion(nombre, nombre2, nombre3);
-          }
-          index = miGrafo.buscarNodo(nombre2);
-          if (index != -1)
-          {
-            miGrafo.nodos[index].delRelacion(nombre);
-          }
-          index = miGrafo.buscarNodo(nombre3);
-          if (index != -1)
-          {
-            miGrafo.nodos[index].addRelacion(nombre);
-          }
-          string respuesta = "A2";
-          char *buff = &(respuesta[0]);
-          sendto(sockfd, buff, strlen(buff),
-                 MSG_CONFIRM, (const struct sockaddr *)&cliaddr,
-                 len);
-        }
-        else if (nSlave1 == nSlave2 && 8000 + nSlave1 == myPORT)
-        {
-          int index = miGrafo.buscarNodo(nombre);
-          if (index != -1)
-          {
-            miGrafo.cambiarRelacion(nombre, nombre2, nombre3);
-          }
-          index = miGrafo.buscarNodo(nombre2);
-          if (index != -1)
-          {
-            miGrafo.nodos[index].delRelacion(nombre);
-          }
-          string respuesta = "A2";
-          char *buff = &(respuesta[0]);
-          sendto(sockfd, buff, strlen(buff),
-                 MSG_CONFIRM, (const struct sockaddr *)&cliaddr,
-                 len);
-        }
-        else if (nSlave1 == nSlave3 && 8000 + nSlave1 == myPORT)
-        {
-          int index = miGrafo.buscarNodo(nombre);
-          if (index != -1)
-          {
-            miGrafo.cambiarRelacion(nombre, nombre2, nombre3);
-          }
-          index = miGrafo.buscarNodo(nombre3);
-          if (index != -1)
-          {
-            miGrafo.nodos[index].addRelacion(nombre);
-          }
-          string respuesta = "A2";
-          char *buff = &(respuesta[0]);
-          sendto(sockfd, buff, strlen(buff),
-                 MSG_CONFIRM, (const struct sockaddr *)&cliaddr,
-                 len);
-        }
-        else if (nSlave2 == nSlave3 && 8000 + nSlave2 == myPORT)
-        {
-          int index = miGrafo.buscarNodo(nombre2);
-          if (index != -1)
-          {
-            miGrafo.nodos[index].delRelacion(nombre);
-          }
-          index = miGrafo.buscarNodo(nombre3);
-          if (index != -1)
-          {
-            miGrafo.nodos[index].addRelacion(nombre);
-          }
-          string respuesta = "A2";
-          char *buff = &(respuesta[0]);
-          sendto(sockfd, buff, strlen(buff),
-                 MSG_CONFIRM, (const struct sockaddr *)&cliaddr,
-                 len);
-        }
-        else if (8000 + nSlave1 == myPORT)
-        {
-          int index = miGrafo.buscarNodo(nombre);
-          if (index != -1)
-          {
-            miGrafo.cambiarRelacion(nombre, nombre2, nombre3);
-          }
-
-          string respuesta = "A2";
-          char *buff = &(respuesta[0]);
-          sendto(sockfd, buff, strlen(buff),
-                 MSG_CONFIRM, (const struct sockaddr *)&cliaddr,
-                 len);
-        }
-        else if (8000 + nSlave2 == myPORT)
-        {
-          int index = miGrafo.buscarNodo(nombre2);
-          if (index != -1)
-          {
-            miGrafo.nodos[index].delRelacion(nombre);
-          }
-
-          string respuesta = "A2";
-          char *buff = &(respuesta[0]);
-          sendto(sockfd, buff, strlen(buff),
-                 MSG_CONFIRM, (const struct sockaddr *)&cliaddr,
-                 len);
-        }
-        else if (8000 + nSlave3 == myPORT)
-        {
-          int index = miGrafo.buscarNodo(nombre3);
-          if (index != -1)
-          {
-            miGrafo.nodos[index].addRelacion(nombre);
-          }
-
-          string respuesta = "A2";
-          char *buff = &(respuesta[0]);
-          sendto(sockfd, buff, strlen(buff),
-                 MSG_CONFIRM, (const struct sockaddr *)&cliaddr,
-                 len);
-        }
-        else
-        {
-          string respuesta;
-          if (nSlave1 == nSlave2 && nSlave2 == nSlave3)
-            respuesta = client(8000 + nSlave1, mensaje);
-          else if (nSlave1 == nSlave2)
-          {
-            respuesta = client(8000 + nSlave1, mensaje);
-            respuesta = client(8000 + nSlave3, mensaje);
-          }
-          else if (nSlave1 == nSlave3)
-          {
-            respuesta = client(8000 + nSlave1, mensaje);
-            respuesta = client(8000 + nSlave2, mensaje);
-          }
-          else if (nSlave2 == nSlave3)
-          {
-            respuesta = client(8000 + nSlave1, mensaje);
-            respuesta = client(8000 + nSlave2, mensaje);
-          }
-          else
-          {
-            respuesta = client(8000 + nSlave1, mensaje);
-            respuesta = client(8000 + nSlave2, mensaje);
-            respuesta = client(8000 + nSlave3, mensaje);
-          }
-
-          char *buff = &(respuesta[0]);
-          sendto(sockfd, buff, strlen(buff),
-                 MSG_CONFIRM, (const struct sockaddr *)&cliaddr,
-                 len);
-        }
+        //     char *buff = &(respuesta[0]);
+        //     sendto(sockfd, buff, strlen(buff),
+        //            MSG_CONFIRM, (const struct sockaddr *)&cliaddr,
+        //            len);
+        //   }
       }
     }
     else if (mensaje[0] == 'D')
@@ -1091,7 +1117,7 @@ int main()
 {
 
   int PORT;
-  cout << "ID >";
+  cout << "ID 0 PARA SER EL NODO PRINCIPAL >";
   cin >> PORT;
 
   if (PORT == 0)
@@ -1102,9 +1128,9 @@ int main()
   myPORT = PORT;
 
   if (PORT == 9000)
-    cout << " ** Eres el MASTER : " << myPORT << endl;
+    cout << " ** Eres el NODO PRINCIPAL : " << myPORT << endl;
   else
-    cout << " ** ERES EL SLAVE : " << PORT << endl;
+    cout << " ** ERES un NODO ALMACENAMIENTO : " << PORT << endl;
 
   // miGrafo.iniciales();
 
