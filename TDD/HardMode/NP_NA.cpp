@@ -44,7 +44,8 @@ string client(int PORT, string mensaje)
   struct hostent *host;
   struct sockaddr_in servaddr;
 
-  host = (struct hostent *)gethostbyname((char *)"159.223.180.58");
+  // host = (struct hostent *)gethostbyname((char *)"159.223.180.58");
+  host = (struct hostent *)gethostbyname((char *)"127.0.0.1");
 
   // Creating socket file descriptor
   if ((sockfd = socket(AF_INET, SOCK_DGRAM, 0)) < 0)
@@ -62,13 +63,13 @@ string client(int PORT, string mensaje)
 
   printf("[%s] [%s : %hd]\n", "Servidor: ", inet_ntoa(servaddr.sin_addr), ntohs(servaddr.sin_port));
 
-  char myIP[16];
-  socklen_t len2 = sizeof(servaddr);
-  getsockname(sockfd, (struct sockaddr *)&servaddr, &len2);
-  inet_ntop(AF_INET, &servaddr.sin_addr, myIP, sizeof(myIP));
+  // char myIP[16];
+  // socklen_t len2 = sizeof(servaddr);
+  // getsockname(sockfd, (struct sockaddr *)&servaddr, &len2);
+  // inet_ntop(AF_INET, &servaddr.sin_addr, myIP, sizeof(myIP));
 
-  string ip = myIP;
-  int port = ntohs(servaddr.sin_port);
+  // string ip = myIP;
+  // int port = ntohs(servaddr.sin_port);
 
 
   int n, len;

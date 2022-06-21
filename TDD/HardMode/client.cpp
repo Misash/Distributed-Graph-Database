@@ -207,7 +207,8 @@ int main()
   char buffer[MAXLINE];
   struct hostent *host;
   struct sockaddr_in servaddr;
-  host = (struct hostent *)gethostbyname((char *)"159.223.180.58");
+  // host = (struct hostent *)gethostbyname((char *)"159.223.180.58");
+  host = (struct hostent *)gethostbyname((char *)"127.0.0.1");
 
   // Creating socket file descriptor
   if ((sockfd = socket(AF_INET, SOCK_DGRAM, 0)) < 0)
