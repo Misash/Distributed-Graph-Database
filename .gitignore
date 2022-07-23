@@ -1,0 +1,9 @@
+cmake-build-debug/
+.name
+source/pruebas.cpp
+
+.idea/
+.idea/*
+
+build/*   
+.vscode
